@@ -163,7 +163,7 @@ with dpg.theme(tag="theme_pool"):
         dpg.add_theme_style(dpg.mvStyleVar_FramePadding, 10, 10)
         dpg.add_theme_color(dpg.mvThemeCol_Text, [24, 32, 24])
 
-with dpg.window(tag="window", label="Example Window"):
+with dpg.window(tag="window", label="main window"):
     with dpg.group(horizontal=True):
         dpg.add_button(label="Start raking", callback=start_raking)
         dpg.add_button(label="Change directory", callback=select_path)
