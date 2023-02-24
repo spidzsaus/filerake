@@ -13,16 +13,19 @@ def preview_if_possible(path, context):
         dpg.delete_item('file_preview_text')
         line_limit = context.__settings__.file_preview_text_line_limit
         contents = ''
-        with open(path) as f:
-            while line_limit > 0:
-                try:
-                    line = f.readline()
-                except EOFError:
-                    break
-                contents += line
-                line_limit -= 1
-            if line_limit == 0:
-                contents += '<...>'
+        try:
+            with open(path) as f:
+                while line_limit > 0:
+                    try:
+                        line = f.readline()
+                    except EOFError:
+                        break
+                    contents += line
+                    line_limit -= 1
+                if line_limit == 0:
+                    contents += '<...>'
+        except:
+            contents = "Unable to load file"
         dpg.add_text(contents, label='file_preview_text')
     elif filetype.is_image(str(path)):
         dpg.delete_item('file_preview_texture')

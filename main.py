@@ -66,7 +66,7 @@ def next_raking(sender, app_data):
                         preview_if_possible(step.file, Context)
                     dpg.delete_item("preview_loading")
                 with dpg.group():
-                    with dpg.child_window(height=90, border=False):
+                    with dpg.child_window(height=200, border=False):
                         if step.suggestions:
                             dpg.add_text('Suggested pools:')
                             for sgst in step.suggestions:
