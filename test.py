@@ -1,16 +1,16 @@
-from pools import *
-from context import __SuggestionTable__
+from core.pools import *
+from core.suggestions import *
 
 from pathlib import Path
 
-_1 = Pool.from_json(
+p1 = Pool.from_json(
     {
         "name": "Junkyard",
         "path": "D:/junkyard/",
         "pattern": "\.png$"  
     }
 )
-_2 = Pool.from_json(
+p2 = Pool.from_json(
     {
         "name": "SVG",
         "path": "D:/SP1DZMAIN/свгшники",
@@ -18,13 +18,17 @@ _2 = Pool.from_json(
     }
 )
 
+st = SuggestionTable()
+st.add_pool(p1)
+st.add_pool(p2)
+
 home = Path('C:/Users/Ivan/Desktop')
 
 paths = [f for f in home.iterdir() if f.is_file()]
 
 for path in paths:
     print(f'Reviewing path {path}')
-    suggs = list(__SuggestionTable__.suggest(path.name))
+    suggs = list(st.suggest(path.name))
     if suggs:
         print('Suggested pools:')
         for i, pool in enumerate(suggs):

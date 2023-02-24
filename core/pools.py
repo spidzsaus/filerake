@@ -1,13 +1,15 @@
-from context import __SuggestionTable__
-from core.warnings import *
+from .warnings import *
 
 from pathlib import Path
 from random import randint
 import shutil
+import re
+
 
 class Pool:
     name : str
     path : Path
+    pattern : re.Pattern
 
     @classmethod
     def from_json(cls, dic: dict):
@@ -15,7 +17,7 @@ class Pool:
         
         new.name = dic["name"]
         new.path = Path(dic["path"])
-        __SuggestionTable__.add_rule(new, dic["pattern"])
+        new.pattern = re.compile(dic["pattern"], re.UNICODE)
         return new
     
     def send(self, filepath: Path):

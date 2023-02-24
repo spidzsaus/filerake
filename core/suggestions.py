@@ -1,20 +1,13 @@
-import re
-
 class SuggestionTable:
     def __init__(self):
-        self.rules = dict()
+        self.rules = set()
 
-    def add_rule(self, pool, rule):
-        self.rules[rule] = pool
+    def add_pool(self, pool):
+        self.rules.add(pool)
 
     def suggest(self, name):
         suggestions = set()
-        for key, value in self.rules.items():
-            pattern = re.compile(key, re.UNICODE)
-            if pattern.search(name):
-            #if key in name:
-                suggestions.add(value)
+        for pool in self.rules:
+            if pool.pattern.search(name):
+                suggestions.add(pool)
         return suggestions
-
-
-
