@@ -8,7 +8,7 @@
 
         {
             "name": "SVG",
-            "path": "D:/SP1DZMAIN/свгшники",
+            "path": "D:/SP1DZMAIN/SVGs",
             "pattern": "\\.svg$"  
         }
     ],
@@ -18,5 +18,5 @@
         "py", "cpp", "json"
     ],
 
-    "file_preview_text_line_limit": 25
+    "file_preview_text_line_limit": 128
 }

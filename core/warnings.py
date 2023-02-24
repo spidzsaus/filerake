@@ -3,7 +3,7 @@ class Warning:
         if tip is None:
             tip = ''
         self.tip = tip
-        for key, value in kwargs:
+        for key, value in kwargs.items():
             self.__setattr__(key, value)
     
     def __str__(self) -> str:
