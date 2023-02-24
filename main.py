@@ -36,7 +36,7 @@ def next_raking(sender, app_data):
 
     if sender is not Ellipsis:
         idx = int(sender[len('POOL'):])
-        if idx == -2:
+        if idx <= -2:
             pool = None
         else:
             pool = Context.__tempPoolsTable__[idx]
@@ -45,6 +45,12 @@ def next_raking(sender, app_data):
         pool = None
     if idx == -2:
         Context.__recycleBin__.append(Context.__session__.prev_file)
+    if idx == -3:
+        dir_input = filedialog.askdirectory()
+        if dir_input: 
+            tmp = Pool()
+            tmp.path = Path(dir_input)
+            tmp.send(Context.__session__.prev_file)
     step = Context.__session__.next(pool)
     dpg.delete_item('raking')
     if step:
@@ -80,6 +86,8 @@ def next_raking(sender, app_data):
                             count += 1
                     dpg.add_separator()
                     dpg.add_button(label='Ignore', callback=next_raking, tag=f"POOL-1",
+                                   width=-1)
+                    dpg.add_button(label='Choose location', callback=next_raking, tag=f"POOL-3",
                                    width=-1)
                     dpg.add_spacer(height=10)
 
