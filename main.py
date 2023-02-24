@@ -1,6 +1,7 @@
 from tkinter import filedialog
 import dearpygui.dearpygui as dpg
 from pathlib import Path
+import audioplayer
 
 from app.settings import UserSettings
 from app.raking_session import RakingSession, RakingStep
@@ -11,6 +12,7 @@ class Context:
     __settings__ = UserSettings('config/settings.json')
     __session__ : RakingSession = None
     __tempPoolsTable__ = {-1: None}
+    __audioPlayer__ : audioplayer.AudioPlayer = None
 
 def select_path(sender, app_data):
     dir_input = filedialog.askdirectory()
@@ -24,6 +26,9 @@ def start_raking(sender, app_data):
     next_raking(..., ...)
 
 def next_raking(sender, app_data):
+    if Context.__audioPlayer__ is not None:
+        Context.__audioPlayer__.close()
+
     if sender is not Ellipsis:
         pool = Context.__tempPoolsTable__[int(sender[len('POOL'):])]
     else:
@@ -35,7 +40,7 @@ def next_raking(sender, app_data):
         Context.__tempPoolsTable__ = {-1: None}
         with dpg.child_window(parent='window', tag="raking", label="Raking"):
             dpg.add_text(f'Reviewing {step.file.name}')
-            preview_if_possible(step.file, Context.__settings__)
+            preview_if_possible(step.file, Context)
             if step.suggestions:
                 dpg.add_text('Suggested pools:')
                 for sgst in step.suggestions:
