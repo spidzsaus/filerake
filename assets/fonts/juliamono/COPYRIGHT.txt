@@ -1,0 +1,1 @@
+Copyright 2020 - 2023 The JuliaMono Project Authors (https://github.com/cormullion/juliamono)
