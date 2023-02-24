@@ -35,7 +35,7 @@ def next_raking(sender, app_data):
         Context.__tempPoolsTable__ = {-1: None}
         with dpg.child_window(parent='window', tag="raking", label="Raking"):
             dpg.add_text(f'Reviewing {step.file.name}')
-            preview_if_possible(step.file)
+            preview_if_possible(step.file, Context.__settings__)
             if step.suggestions:
                 dpg.add_text('Suggested pools:')
                 for sgst in step.suggestions:

@@ -3,8 +3,11 @@ from core.pools import Pool
 from core.suggestions import SuggestionTable
 
 class UserSettings:
-    # Default setting values
+    # Default settings values
     pools = []
+    text_formats = {'txt', 'md', 'html', 'py',
+                    'cpp', 'json'}
+    file_preview_text_line_limit = 100
     
     _st : SuggestionTable
     _file_path : str 
@@ -34,6 +37,10 @@ class UserSettings:
                 pool = Pool.from_json(poold)
                 self.pools.append(pool)
                 self._st.add_pool(pool)
+        if "text_formats" in dic:
+            self.text_formats = dic["text_formats"]
+        if "file_preview_text_line_limit" in dic:
+            self.file_preview_text_line_limit = dic["file_preview_text_line_limit"]
     
     def dump_json(self, file):
         dic = {}
@@ -43,5 +50,7 @@ class UserSettings:
             pools.append(pool.to_json())
         
         dic["pools"] = pools
+        dic["text_formats"] = self.text_formats
+        dic["file_preview_text_line_limit"] = self.file_preview_text_line_limit
 
         json.dump(dic, file)

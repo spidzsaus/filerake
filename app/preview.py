@@ -3,8 +3,30 @@ import filetype
 from PIL import Image
 import numpy as np
 
-def preview_if_possible(path):
-    if filetype.is_image(str(path)):
+from app.settings import UserSettings
+
+
+def preview_if_possible(path, usersettings : UserSettings):
+    pn : str = path.name
+    print(pn[pn.rfind('.')+1:].lower(), usersettings.text_formats)
+    if pn[pn.rfind('.')+1:].lower() in usersettings.text_formats:
+        dpg.delete_item('file_preview_text')
+        line_limit = usersettings.file_preview_text_line_limit
+        contents = ''
+        with open(path) as f:
+            while line_limit > 0:
+                print(line_limit)
+                try:
+                    line = f.readline()
+                except EOFError:
+                    break
+                contents += line
+                line_limit -= 1
+            if line_limit == 0:
+                contents += '<...>'
+        dpg.add_text(contents, label='file_preview_text')
+
+    elif filetype.is_image(str(path)):
         dpg.delete_item('file_preview_texture')
 
         image = Image.open(path)

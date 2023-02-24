@@ -11,5 +11,12 @@
             "path": "D:/SP1DZMAIN/свгшники",
             "pattern": "\\.svg$"  
         }
-    ]
+    ],
+    
+    "text_formats": [
+        "txt", "md", "html", 
+        "py", "cpp", "json"
+    ],
+
+    "file_preview_text_line_limit": 25
 }
