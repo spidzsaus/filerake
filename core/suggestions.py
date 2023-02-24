@@ -10,9 +10,11 @@ class SuggestionTable:
     def suggest(self, name):
         suggestions = set()
         for key, value in self.rules.items():
-            if re.fullmatch(key, name):
+            pattern = re.compile(key, re.UNICODE)
+            if pattern.search(name):
+            #if key in name:
                 suggestions.add(value)
-    
+        return suggestions
 
 
 

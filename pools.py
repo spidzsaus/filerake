@@ -1,7 +1,9 @@
 from context import __SuggestionTable__
+from core.warnings import *
+
 from pathlib import Path
 from random import randint
-from core.warnings import *
+import shutil
 
 class Pool:
     name : str
@@ -23,5 +25,6 @@ class Pool:
             name = name + str(randint(0, 999999))
             warn = FileExistsWarning("file exists, added random suffix", filepath=filepath, name=name)
             warnings.add(warn)
-        filepath.rename(self.path / name)
+        newpath = self.path / name
+        shutil.move(str(filepath), str(newpath))
         
