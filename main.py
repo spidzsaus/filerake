@@ -72,6 +72,8 @@ with dpg.window(tag="window", label="Example Window"):
     dpg.add_button(label="Change directory", callback=select_path)
     dpg.add_button(label="Start raking", callback=start_raking)
 
+dpg.set_viewport_large_icon("assets/icon.ico")
+dpg.set_viewport_small_icon("assets/icon.ico")
 
 dpg.show_viewport()
 dpg.set_primary_window("window", True)
