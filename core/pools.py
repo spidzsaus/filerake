@@ -14,11 +14,17 @@ class Pool:
     @classmethod
     def from_json(cls, dic: dict):
         new = cls()
-        
         new.name = dic["name"]
         new.path = Path(dic["path"])
         new.pattern = re.compile(dic["pattern"], re.UNICODE)
         return new
+
+    def to_json(self):
+        dic = {}
+        dic["name"] = self.name
+        dic["path"] = str(self.path)
+        dic["pattern"] = str(self.pattern)
+        return dic
     
     def send(self, filepath: Path):
         warnings = set()
