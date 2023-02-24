@@ -1,12 +1,7 @@
 {
 	"pools": [
 		{
-			"name": "Junkyard",
-			"path": "D:\\junkyard",
-			"pattern": "\\.png$"
-		},
-		{
-			"name": "SVG",
+			"name": "SVG moment",
 			"path": "D:\\SP1DZMAIN\\SVGs",
 			"pattern": "\\.svg$"
 		}
@@ -19,5 +14,5 @@
 		"cpp",
 		"json"
 	],
-	"file_preview_text_line_limit": "128"
+	"file_preview_text_line_limit": 128
 }
