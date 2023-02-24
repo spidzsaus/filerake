@@ -2,6 +2,7 @@ from tkinter import filedialog
 import dearpygui.dearpygui as dpg
 from pathlib import Path
 import audioplayer
+import os
 
 from app.settings import UserSettings
 from app.raking_session import RakingSession, RakingStep
@@ -14,6 +15,7 @@ class Context:
     __session__ : RakingSession = None
     __tempPoolsTable__ = {-1: IgnorePool()}
     __audioPlayer__ : audioplayer.AudioPlayer = None
+    __recycleBin__ = []
 
 
 def select_path(sender, app_data):
@@ -25,6 +27,7 @@ def select_path(sender, app_data):
 
 def start_raking(sender, app_data):
     Context.__session__ = RakingSession(Context.__searchPath__, Context.__settings__)
+    Context.__recycleBin__ = []
     next_raking(..., ...)
 
 def next_raking(sender, app_data):
@@ -32,9 +35,16 @@ def next_raking(sender, app_data):
         Context.__audioPlayer__.close()
 
     if sender is not Ellipsis:
-        pool = Context.__tempPoolsTable__[int(sender[len('POOL'):])]
+        idx = int(sender[len('POOL'):])
+        if idx == -2:
+            pool = None
+        else:
+            pool = Context.__tempPoolsTable__[idx]
     else:
+        idx = None
         pool = None
+    if idx == -2:
+        Context.__recycleBin__.append(Context.__session__.prev_file)
     step = Context.__session__.next(pool)
     dpg.delete_item('raking')
     if step:
@@ -61,7 +71,7 @@ def next_raking(sender, app_data):
                             dpg.add_separator()
                         else:
                             dpg.add_text("No pool suggestions")
-                    with dpg.group():
+                    with dpg.child_window(height=400, border=False):
                         for pool in step.pools:
                             dpg.add_button(label=pool.name, callback=next_raking, tag=f"POOL{count}",
                                            width=-1)
@@ -76,6 +86,25 @@ def next_raking(sender, app_data):
                     dpg.add_button(label='Delete', callback=next_raking, tag=f"POOL-2",
                                    width=-1)
                     dpg.bind_item_theme(dpg.last_item(), "theme_red")
+    else:
+        with dpg.child_window(parent='window', tag="raking", label="Raking"):
+            dpg.add_text('All sorted!')
+            if Context.__recycleBin__:
+                dpg.add_text("You've marked following files for deletion:")
+                for file in Context.__recycleBin__:
+                    dpg.add_checkbox(label=file.name, tag=str(file),
+                                    default_value=True)
+                dpg.add_text("Are you sure you want to delete them?")
+                dpg.add_text("Unmark the files you want to keep")
+
+                def deletion_callback():
+                    for file in Context.__recycleBin__:
+                        if dpg.get_value(str(file)):
+                            os.remove(str(file))
+                    dpg.delete_item('raking')
+                dpg.add_button(label="Delete all marked files", callback=deletion_callback)
+                dpg.bind_item_theme(dpg.last_item(), "theme_red")
+
 
 
 dpg.create_context()
