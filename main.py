@@ -17,6 +17,7 @@ class Context:
     __tempPoolsTable__ = {-1: IgnorePool()}
     __audioPlayer__ : audioplayer.AudioPlayer = None
     __recycleBin__ = []
+    __stepBuff__ = None
 
 
 def select_path(sender, app_data):
@@ -34,7 +35,7 @@ def start_raking(sender, app_data):
 def next_raking(sender, app_data):
     if Context.__audioPlayer__ is not None:
         Context.__audioPlayer__.close()
-
+    do_not_continue = False
     if sender is not Ellipsis:
         idx = int(sender[len('POOL'):])
         if idx <= -2:
@@ -52,7 +53,13 @@ def next_raking(sender, app_data):
             tmp = Pool()
             tmp.path = Path(dir_input)
             tmp.send(Context.__session__.prev_file)
-    step = Context.__session__.next(pool)
+        else:
+            do_not_continue = True
+    if not do_not_continue:
+        step = Context.__session__.next(pool)
+        Context.__stepBuff__ = step
+    else:
+        step = Context.__stepBuff__
     dpg.delete_item('raking')
     if step:
         count = 0
