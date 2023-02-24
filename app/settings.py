@@ -14,13 +14,17 @@ class UserSettings:
         self._file_path = filepath
         self.read()
     
+    @property
+    def suggestion_table(self):
+        return self._st
+
     def read(self):
         with open(self._file_path) as file:
-            self.parse_json(self, file)
+            self.parse_json(file)
     
     def write(self):
         with open(self._file_path, mode="w") as file:
-            self.dump_json(self, file)
+            self.dump_json(file)
 
     def parse_json(self, file):
         dic = json.load(file)
@@ -41,4 +45,3 @@ class UserSettings:
         dic["pools"] = pools
 
         json.dump(dic, file)
-        

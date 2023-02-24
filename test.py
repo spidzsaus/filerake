@@ -1,26 +1,12 @@
 from core.pools import *
 from core.suggestions import *
 
+from app.settings import *
+
 from pathlib import Path
 
-p1 = Pool.from_json(
-    {
-        "name": "Junkyard",
-        "path": "D:/junkyard/",
-        "pattern": "\.png$"  
-    }
-)
-p2 = Pool.from_json(
-    {
-        "name": "SVG",
-        "path": "D:/SP1DZMAIN/свгшники",
-        "pattern": "\.svg$"  
-    }
-)
-
-st = SuggestionTable()
-st.add_pool(p1)
-st.add_pool(p2)
+settings = UserSettings('config/settings.json')
+st = settings.suggestion_table
 
 home = Path('C:/Users/Ivan/Desktop')
 

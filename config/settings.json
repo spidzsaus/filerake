@@ -1,0 +1,15 @@
+{
+    "pools": [
+        {
+            "name": "Junkyard",
+            "path": "D:/junkyard/",
+            "pattern": "\\.png$"  
+        },
+
+        {
+            "name": "SVG",
+            "path": "D:/SP1DZMAIN/свгшники",
+            "pattern": "\\.svg$"  
+        }
+    ]
+}
