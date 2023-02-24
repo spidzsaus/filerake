@@ -19,8 +19,9 @@ class RakingSession:
         self.prev_file = None
     
     def next(self, pool : Pool=None):
-        if self.prev_file is not None:
+        if self.prev_file is not None and pool is not None:
             pool.send(self.prev_file)
+
         try:
             file = next(self.pile)
         except StopIteration:

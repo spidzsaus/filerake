@@ -4,12 +4,13 @@ from pathlib import Path
 
 from app.settings import UserSettings
 from app.raking_session import RakingSession, RakingStep
+from app.preview import preview_if_possible
 
 class Context:
     __searchPath__ = Path('C:/')
     __settings__ = UserSettings('config/settings.json')
     __session__ : RakingSession = None
-    __tempPoolsTable__ = {}
+    __tempPoolsTable__ = {-1: None}
 
 def select_path(sender, app_data):
     dir_input = filedialog.askdirectory()
@@ -31,10 +32,10 @@ def next_raking(sender, app_data):
     dpg.delete_item('raking')
     if step:
         count = 0
-        Context.__tempPoolsTable__.clear()
+        Context.__tempPoolsTable__ = {-1: None}
         with dpg.child_window(parent='window', tag="raking", label="Raking"):
             dpg.add_text(f'Reviewing {step.file.name}')
-
+            preview_if_possible(step.file)
             if step.suggestions:
                 dpg.add_text('Suggested pools:')
                 for sgst in step.suggestions:
@@ -46,6 +47,8 @@ def next_raking(sender, app_data):
                 dpg.add_selectable(label=pool.name, callback=next_raking, tag=f"POOL{count}")
                 Context.__tempPoolsTable__[count] = pool
                 count += 1
+            dpg.add_separator()
+            dpg.add_selectable(label='Ignore', callback=next_raking, tag=f"POOL-1")
 
 
 dpg.create_context()
