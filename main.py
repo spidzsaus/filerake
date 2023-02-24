@@ -7,6 +7,7 @@ import os
 from app.settings import UserSettings
 from app.raking_session import RakingSession, RakingStep
 from app.preview import preview_if_possible
+from app.settings_window import open_settings_window
 from core.pools import *
 
 class Context:
@@ -151,9 +152,12 @@ with dpg.theme(tag="theme_pool"):
         dpg.add_theme_color(dpg.mvThemeCol_Text, [24, 32, 24])
 
 with dpg.window(tag="window", label="Example Window"):
+    with dpg.group(horizontal=True):
+        dpg.add_button(label="Start raking", callback=start_raking)
+        dpg.add_button(label="Change directory", callback=select_path)
+        dpg.add_button(label="Settings", callback=lambda : open_settings_window(Context))
     dpg.add_text(f"Sorting path: {Context.__searchPath__}", tag='main label')
-    dpg.add_button(label="Change directory", callback=select_path)
-    dpg.add_button(label="Start raking", callback=start_raking)
+    
 
 dpg.set_viewport_large_icon("assets/icon.ico")
 dpg.set_viewport_small_icon("assets/icon.ico")

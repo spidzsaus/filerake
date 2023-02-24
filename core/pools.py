@@ -23,7 +23,7 @@ class Pool:
         dic = {}
         dic["name"] = self.name
         dic["path"] = str(self.path)
-        dic["pattern"] = str(self.pattern)
+        dic["pattern"] = self.pattern.pattern
         return dic
     
     def send(self, filepath: Path):

@@ -53,4 +53,4 @@ class UserSettings:
         dic["text_formats"] = self.text_formats
         dic["file_preview_text_line_limit"] = self.file_preview_text_line_limit
 
-        json.dump(dic, file)
+        json.dump(dic, file, indent='\t')

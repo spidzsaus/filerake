@@ -1,22 +1,23 @@
 {
-    "pools": [
-        {
-            "name": "Junkyard",
-            "path": "D:/junkyard/",
-            "pattern": "\\.png$"  
-        },
-
-        {
-            "name": "SVG",
-            "path": "D:/SP1DZMAIN/SVGs",
-            "pattern": "\\.svg$"  
-        }
-    ],
-    
-    "text_formats": [
-        "txt", "md", "html", 
-        "py", "cpp", "json"
-    ],
-
-    "file_preview_text_line_limit": 128
+	"pools": [
+		{
+			"name": "Junkyard",
+			"path": "D:\\junkyard",
+			"pattern": "\\.png$"
+		},
+		{
+			"name": "SVG",
+			"path": "D:\\SP1DZMAIN\\SVGs",
+			"pattern": "\\.svg$"
+		}
+	],
+	"text_formats": [
+		"txt",
+		"md",
+		"html",
+		"py",
+		"cpp",
+		"json"
+	],
+	"file_preview_text_line_limit": "128"
 }
