@@ -10,6 +10,11 @@ from app.preview import preview_if_possible
 from app.settings_window import open_settings_window
 from core.pools import *
 
+if not os.path.exists("config/settings.json"):
+    os.makedirs("config", exist_ok=True)
+    UserSettings("config/settings.json").write()
+    
+
 class Context:
     __searchPath__ = Path('C:/')
     __settings__ = UserSettings('config/settings.json')
