@@ -25,13 +25,18 @@ def preview_if_possible(path, context):
                 if line_limit == 0:
                     contents += '<...>'
         except:
-            contents = "Unable to load file"
+            dpg.add_text("Unable to text image file")
+            return
         dpg.add_text(contents, label='file_preview_text')
     elif filetype.is_image(str(path)):
         dpg.delete_item('file_preview_texture')
-
-        image = Image.open(path)
-        image = image.convert('RGBA')
+        
+        try:
+            image = Image.open(path)
+            image = image.convert('RGBA')
+        except:
+            dpg.add_text("Unable to load image file")
+            return
         w, h = image.size
         k = 360 / h
         w = int(w * k)
