@@ -25,7 +25,7 @@ class Context:
     __searchPath__ = Path('C:/')
     __settings__ = UserSettings('config/settings.json')
     __session__ : RakingSession = None
-    __tempPoolsTable__ = {-1: IgnorePool()}
+    __tempPoolsTable__ = {}
     __audioPlayer__ : audioplayer.AudioPlayer = None
     __recycleBin__ = []
     __stepBuff__ = None
@@ -47,9 +47,10 @@ def next_raking(sender, app_data):
     if Context.__audioPlayer__ is not None:
         Context.__audioPlayer__.close()
     do_not_continue = False
+    force_finish = False
     if sender is not Ellipsis:
         idx = int(sender[len('POOL'):])
-        if idx <= -2:
+        if idx < 0:
             pool = None
         else:
             pool = Context.__tempPoolsTable__[idx]
@@ -58,7 +59,7 @@ def next_raking(sender, app_data):
         pool = None
     if idx == -2:
         Context.__recycleBin__.append(Context.__session__.prev_file)
-    if idx == -3:
+    elif idx == -3:
         dir_input = filedialog.askdirectory()
         if dir_input: 
             tmp = Pool()
@@ -66,15 +67,18 @@ def next_raking(sender, app_data):
             tmp.send(Context.__session__.prev_file)
         else:
             do_not_continue = True
+    elif idx == -4:
+        print("force")
+        force_finish = True
     if not do_not_continue:
         step = Context.__session__.next(pool)
         Context.__stepBuff__ = step
     else:
         step = Context.__stepBuff__
     dpg.delete_item('raking')
-    if step:
+    if step and not force_finish:
         count = 0
-        Context.__tempPoolsTable__ = {-1: IgnorePool()}
+        Context.__tempPoolsTable__.clear()
         with dpg.child_window(parent='window', tag="raking", label="Raking"):
             with dpg.group(horizontal=True):
                 with dpg.group(width=300):
@@ -114,7 +118,10 @@ def next_raking(sender, app_data):
                     dpg.add_button(label='Reveal in explorer', tag="file-explore",
                                    width=-1,
                                    callback=lambda : subprocess.Popen(FILEOPENER + [step.file.resolve()]))
-                    
+                    dpg.add_spacer(height=10)
+                    dpg.add_button(label='Finish', tag="POOL-4",
+                                   width=-1,
+                                   callback=next_raking)
 
                 with dpg.child_window(height=-1): 
                     dpg.add_text(f'Reviewing {step.file.name}')
