@@ -171,7 +171,7 @@ with dpg.window(tag="window", label="main window"):
     dpg.add_text(f"Sorting path: {Context.__searchPath__}", tag='main label')
     
 
-dpg.set_viewport_large_icon("assets/icon.ico")
+dpg.set_viewport_large_icon("assets/icon-big.ico")
 dpg.set_viewport_small_icon("assets/icon.ico")
 
 dpg.show_viewport()
