@@ -3,6 +3,8 @@ import dearpygui.dearpygui as dpg
 from pathlib import Path
 import audioplayer
 import os
+import sys
+import subprocess
 
 from app.settings import UserSettings
 from app.raking_session import RakingSession, RakingStep
@@ -13,7 +15,11 @@ from core.pools import *
 if not os.path.exists("config/settings.json"):
     os.makedirs("config", exist_ok=True)
     UserSettings("config/settings.json").write()
-    
+
+if sys.platform == 'win32':
+    FILEOPENER = ['explorer',  '/select,']
+elif sys.platform == 'darwin':
+    FILEOPENER = ['open', '-R']
 
 class Context:
     __searchPath__ = Path('C:/')
@@ -71,13 +77,7 @@ def next_raking(sender, app_data):
         Context.__tempPoolsTable__ = {-1: IgnorePool()}
         with dpg.child_window(parent='window', tag="raking", label="Raking"):
             with dpg.group(horizontal=True):
-                with dpg.child_window(width=1000): 
-                    dpg.add_text(f'Reviewing {step.file.name}')
-                    dpg.add_loading_indicator(tag="preview_loading")
-                    with dpg.child_window(border=False):
-                        preview_if_possible(step.file, Context)
-                    dpg.delete_item("preview_loading")
-                with dpg.group():
+                with dpg.group(width=300):
                     with dpg.child_window(height=200, border=False):
                         if step.suggestions:
                             dpg.add_text('Suggested pools:')
@@ -106,7 +106,22 @@ def next_raking(sender, app_data):
 
                     dpg.add_button(label='Delete', callback=next_raking, tag=f"POOL-2",
                                    width=-1)
-                    dpg.bind_item_theme(dpg.last_item(), "theme_red")
+                    dpg.bind_item_theme(dpg.last_item(), "theme_red")    
+                    dpg.add_spacer(height=10)
+                    dpg.add_button(label='Open file', tag="file-open",
+                                   width=-1,
+                                   callback=lambda : os.system(f'explorer "{step.file.resolve()}"'))
+                    dpg.add_button(label='Reveal in explorer', tag="file-explore",
+                                   width=-1,
+                                   callback=lambda : subprocess.Popen(FILEOPENER + [step.file.resolve()]))
+                    
+
+                with dpg.child_window(height=-1): 
+                    dpg.add_text(f'Reviewing {step.file.name}')
+                    dpg.add_loading_indicator(tag="preview_loading")
+                    with dpg.child_window(border=False):
+                        preview_if_possible(step.file, Context)
+                    dpg.delete_item("preview_loading")
     else:
         with dpg.child_window(parent='window', tag="raking", label="Raking"):
             dpg.add_text('All sorted!')
