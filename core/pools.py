@@ -5,11 +5,21 @@ from random import randint
 import shutil
 import re
 
+eventDelete = object()
 
 class Pool:
     name : str
     path : Path
     pattern : re.Pattern
+    
+    def __init__(self, name=None, path=None, pattern=None):
+        if path is None:
+            path = ""
+        if pattern is None:
+            pattern = ""
+        self.name = name
+        self.path = Path(path)
+        self.pattern = re.compile(pattern)
 
     @classmethod
     def from_json(cls, dic: dict):

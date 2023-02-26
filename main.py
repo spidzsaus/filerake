@@ -10,6 +10,7 @@ from app.settings import UserSettings
 from app.raking_session import RakingSession, RakingStep
 from app.preview import preview_if_possible
 from app.settings_window import open_settings_window
+from app.contexts import Context
 from core.pools import *
 
 if not os.path.exists("config/settings.json"):
@@ -21,64 +22,46 @@ if sys.platform == 'win32':
 elif sys.platform == 'darwin':
     FILEOPENER = ['open', '-R']
 
-class Context:
-    __searchPath__ = Path('C:/')
-    __settings__ = UserSettings('config/settings.json')
-    __session__ : RakingSession = None
-    __tempPoolsTable__ = {}
-    __audioPlayer__ : audioplayer.AudioPlayer = None
-    __recycleBin__ = []
-    __stepBuff__ = None
+CONTEXT = Context()
 
-
-def select_path(sender, app_data):
+def select_path():
     dir_input = filedialog.askdirectory()
     if not dir_input: return
-    Context.__searchPath__ = Path(dir_input)
+    CONTEXT.set_path(dir_input)
     dpg.set_value('main label',
-                  f"Sorting path: {Context.__searchPath__}")
+                  f"Sorting path: {CONTEXT.get_path()}")
 
-def start_raking(sender, app_data):
-    Context.__session__ = RakingSession(Context.__searchPath__, Context.__settings__)
-    Context.__recycleBin__ = []
-    next_raking(..., ...)
+def start_raking(sender):
+    CONTEXT.start_session()
+    CONTEXT.session.next()
+    update_raking(sender)
 
-def next_raking(sender, app_data):
-    if Context.__audioPlayer__ is not None:
-        Context.__audioPlayer__.close()
-    do_not_continue = False
-    force_finish = False
-    if sender is not Ellipsis:
+def update_raking(sender):
+    CONTEXT.close_audio_player()
+    session = CONTEXT.get_session()
+    if sender.startswith("POOL"):
         idx = int(sender[len('POOL'):])
-        if idx < 0:
-            pool = None
-        else:
-            pool = Context.__tempPoolsTable__[idx]
-    else:
-        idx = None
-        pool = None
-    if idx == -2:
-        Context.__recycleBin__.append(Context.__session__.prev_file)
-    elif idx == -3:
+        session.handle(CONTEXT.get_pool(idx))
+        session.next()
+    elif sender == "DELETE":
+        session.handle(eventDelete)
+        session.next()
+    elif sender == "IGNORE":
+        session.next()
+    elif sender == "MANUAL":
         dir_input = filedialog.askdirectory()
         if dir_input: 
-            tmp = Pool()
-            tmp.path = Path(dir_input)
-            tmp.send(Context.__session__.prev_file)
-        else:
-            do_not_continue = True
-    elif idx == -4:
-        print("force")
-        force_finish = True
-    if not do_not_continue:
-        step = Context.__session__.next(pool)
-        Context.__stepBuff__ = step
-    else:
-        step = Context.__stepBuff__
+            tmp = Pool(path=dir_input)
+            session.handle(tmp)
+            session.next()
+    elif sender == "FINISH":
+        session.finish()
+    
+    step = session.current_step()
+
     dpg.delete_item('raking')
-    if step and not force_finish:
-        count = 0
-        Context.__tempPoolsTable__.clear()
+    if step.is_running:
+        CONTEXT.clear_pools_table()
         with dpg.child_window(parent='window', tag="raking", label="Raking"):
             with dpg.group(horizontal=True):
                 with dpg.group(width=300):
@@ -86,29 +69,28 @@ def next_raking(sender, app_data):
                         if step.suggestions:
                             dpg.add_text('Suggested pools:')
                             for sgst in step.suggestions:
-                                dpg.add_button(label=sgst.name, callback=next_raking, tag=f"POOL{count}",
+                                idx = CONTEXT.register_pool(sgst)
+                                dpg.add_button(label=sgst.name, callback=update_raking, tag=f"POOL{idx}",
                                                width=-1)
                                 dpg.bind_item_theme(dpg.last_item(), "theme_suggestion")
-                                Context.__tempPoolsTable__[count] = sgst
-                                count += 1
+                                
                             dpg.add_separator()
                         else:
                             dpg.add_text("No pool suggestions")
                     with dpg.child_window(height=400, border=False):
-                        for pool in step.pools:
-                            dpg.add_button(label=pool.name, callback=next_raking, tag=f"POOL{count}",
+                        for pool in CONTEXT.get_pools():
+                            idx = CONTEXT.register_pool(pool)
+                            dpg.add_button(label=pool.name, callback=update_raking, tag=f"POOL{idx}",
                                            width=-1)
                             dpg.bind_item_theme(dpg.last_item(), "theme_pool")
-                            Context.__tempPoolsTable__[count] = pool
-                            count += 1
                     dpg.add_separator()
-                    dpg.add_button(label='Ignore', callback=next_raking, tag=f"POOL-1",
+                    dpg.add_button(label='Ignore', callback=update_raking, tag=f"IGNORE",
                                    width=-1)
-                    dpg.add_button(label='Choose location', callback=next_raking, tag=f"POOL-3",
+                    dpg.add_button(label='Choose location', callback=update_raking, tag=f"MANUAL",
                                    width=-1)
                     dpg.add_spacer(height=10)
 
-                    dpg.add_button(label='Delete', callback=next_raking, tag=f"POOL-2",
+                    dpg.add_button(label='Delete', callback=update_raking, tag=f"DELETE",
                                    width=-1)
                     dpg.bind_item_theme(dpg.last_item(), "theme_red")    
                     dpg.add_spacer(height=10)
@@ -119,29 +101,29 @@ def next_raking(sender, app_data):
                                    width=-1,
                                    callback=lambda : subprocess.Popen(FILEOPENER + [step.file.resolve()]))
                     dpg.add_spacer(height=10)
-                    dpg.add_button(label='Finish', tag="POOL-4",
+                    dpg.add_button(label='Finish', tag="FINISH",
                                    width=-1,
-                                   callback=next_raking)
+                                   callback=update_raking)
 
                 with dpg.child_window(height=-1): 
                     dpg.add_text(f'Reviewing {step.file.name}')
                     dpg.add_loading_indicator(tag="preview_loading")
                     with dpg.child_window(border=False):
-                        preview_if_possible(step.file, Context)
+                        preview_if_possible(step.file, CONTEXT)
                     dpg.delete_item("preview_loading")
     else:
         with dpg.child_window(parent='window', tag="raking", label="Raking"):
             dpg.add_text('All sorted!')
-            if Context.__recycleBin__:
+            if step.recycle_bin:
                 dpg.add_text("You've marked following files for deletion:")
-                for file in Context.__recycleBin__:
+                for file in step.recycle_bin:
                     dpg.add_checkbox(label=file.name, tag=str(file),
                                     default_value=True)
                 dpg.add_text("Are you sure you want to delete them?")
                 dpg.add_text("Unmark the files you want to keep")
 
                 def deletion_callback():
-                    for file in Context.__recycleBin__:
+                    for file in step.recycle_bin:
                         if dpg.get_value(str(file)):
                             os.remove(str(file))
                     dpg.delete_item('raking')
@@ -187,10 +169,10 @@ with dpg.theme(tag="theme_pool"):
 
 with dpg.window(tag="window", label="main window"):
     with dpg.group(horizontal=True):
-        dpg.add_button(label="Start raking", callback=start_raking)
+        dpg.add_button(label="Start raking", callback=start_raking, tag="start_raking")
         dpg.add_button(label="Change directory", callback=select_path)
-        dpg.add_button(label="Settings", callback=lambda : open_settings_window(Context))
-    dpg.add_text(f"Sorting path: {Context.__searchPath__}", tag='main label')
+        dpg.add_button(label="Settings", callback=lambda : open_settings_window(CONTEXT))
+    dpg.add_text(f"Sorting path: {CONTEXT.get_path()}", tag='main label')
     
 
 dpg.set_viewport_large_icon("assets/icon-big.ico")

@@ -8,13 +8,16 @@ from core.pools import Pool
 def open_settings_window(context):
     dpg.delete_item("settings_window")
 
-    local_pools = context.__settings__.pools[:]
+    settings = context.get_settings()
+
+    local_pools = settings.pools[:]
 
     def apply_settings():
-        context.__settings__.file_preview_text_line_limit = int(dpg.get_value("file_preview_text_line_limit"))
+        settings.file_preview_text_line_limit = int(dpg.get_value("file_preview_text_line_limit"))
         update_local_pool_data()
-        context.__settings__.pools = local_pools[:]
-        context.__settings__.write()
+        settings.pools = local_pools[:]
+        settings.write()
+        context.update_settings()
         dpg.delete_item("settings_window")
 
     def update_local_pool_data():
@@ -80,11 +83,11 @@ def open_settings_window(context):
     with dpg.window(label="Settings", tag="settings_window"):
         with dpg.tree_node(label="File preview settings"):
             dpg.add_text("Text files preview line limit")
-            dpg.add_input_int(default_value=context.__settings__.file_preview_text_line_limit, 
+            dpg.add_input_int(default_value=settings.file_preview_text_line_limit, 
                               tag="file_preview_text_line_limit")
             dpg.add_spacer(height=10)
             dpg.add_text("Text file extensions")
-            dpg.add_listbox(items=context.__settings__.text_formats,
+            dpg.add_listbox(items=settings.text_formats,
                             tag="text_formats")
         dpg.add_separator()
         with dpg.group(tag="settings_pools_menu"):

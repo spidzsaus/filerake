@@ -2,16 +2,15 @@ import dearpygui.dearpygui as dpg
 import filetype
 from PIL import Image
 import numpy as np
-import audioplayer
 
 from app.settings import UserSettings
 
 
 def preview_if_possible(path, context):
     pn : str = path.name
-    if pn[pn.rfind('.')+1:].lower() in context.__settings__.text_formats:
+    if pn[pn.rfind('.')+1:].lower() in context.get_settings().text_formats:
         dpg.delete_item('file_preview_text')
-        line_limit = context.__settings__.file_preview_text_line_limit
+        line_limit = context.get_settings().file_preview_text_line_limit
         contents = ''
         try:
             with open(path) as f:
@@ -25,7 +24,7 @@ def preview_if_possible(path, context):
                 if line_limit == 0:
                     contents += '<...>'
         except:
-            dpg.add_text("Unable to text image file")
+            dpg.add_text("Unable to load text file")
             return
         dpg.add_text(contents, label='file_preview_text')
     elif filetype.is_image(str(path)):
@@ -55,12 +54,12 @@ def preview_if_possible(path, context):
         dpg.delete_item('file_preview_audio_start')
         dpg.delete_item('file_preview_audio_stop')
         
-        context.__audioPlayer__ = audioplayer.AudioPlayer(str(path))
+        context.open_audio_player(path)
 
         def start_callback():
-            context.__audioPlayer__.play()
+            context.get_audio_player().play()
         def stop_callback():
-            context.__audioPlayer__.stop()
+            context.get_audio_player().stop()
         
         dpg.add_button(label="Play audio file", callback=start_callback, id='file_preview_audio_start')
         dpg.add_button(label="Stop audio file", callback=stop_callback, id='file_preview_audio_stop')

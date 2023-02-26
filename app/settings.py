@@ -2,7 +2,6 @@ import json
 import os
 
 from core.pools import Pool
-from core.suggestions import SuggestionTable
 
 class UserSettings:
     # Default settings values
@@ -11,18 +10,12 @@ class UserSettings:
                     'cpp', 'json']
     file_preview_text_line_limit = 100
     
-    _st : SuggestionTable
     _file_path : str 
 
     def __init__(self, filepath):
-        self._st = SuggestionTable()
         self._file_path = filepath
         if os.path.exists(filepath):
             self.read()
-    
-    @property
-    def suggestion_table(self):
-        return self._st
 
     def read(self):
         with open(self._file_path) as file:
@@ -39,7 +32,6 @@ class UserSettings:
             for poold in dic["pools"]:
                 pool = Pool.from_json(poold)
                 self.pools.append(pool)
-                self._st.add_pool(pool)
         if "text_formats" in dic:
             self.text_formats = dic["text_formats"]
         if "file_preview_text_line_limit" in dic:
