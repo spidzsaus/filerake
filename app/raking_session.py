@@ -26,10 +26,14 @@ class RakingSession:
     path : Path
     settings : UserSettings
 
-    def __init__(self, path : Path, context):
+    def __init__(self, path : Path, context, is_reversed=True):
         self.path = path
         self.context = context
-        self.pile = (f for f in path.iterdir() if f.is_file())
+        self.pile = (
+            reversed([f for f in path.iterdir() if f.is_file()])
+            if is_reversed else
+            (f for f in path.iterdir() if f.is_file())
+        )
         self.recycle_bin = []
         self.current_file = None
         self.prev_file = None

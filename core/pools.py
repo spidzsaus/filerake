@@ -5,14 +5,22 @@ from random import randint
 import shutil
 import re
 
+
 eventDelete = object()
+
+
+class PoolAction:
+    MOVE = "MOVE"
+    COPY = "COPY"
+
 
 class Pool:
     name : str
     path : Path
     pattern : re.Pattern
+    action : PoolAction
     
-    def __init__(self, name=None, path=None, pattern=None):
+    def __init__(self, name=None, path=None, pattern=None, action=PoolAction.MOVE):
         if path is None:
             path = ""
         if pattern is None:
@@ -20,6 +28,7 @@ class Pool:
         self.name = name
         self.path = Path(path)
         self.pattern = re.compile(pattern)
+        self.action = action
 
     @classmethod
     def from_json(cls, dic: dict):
@@ -27,6 +36,7 @@ class Pool:
         new.name = dic["name"]
         new.path = Path(dic["path"])
         new.pattern = re.compile(dic["pattern"], re.UNICODE)
+        new.action = dic["action"]
         return new
 
     def to_json(self):
@@ -34,6 +44,7 @@ class Pool:
         dic["name"] = self.name
         dic["path"] = str(self.path)
         dic["pattern"] = self.pattern.pattern
+        dic["action"] = self.action
         return dic
     
     def send(self, filepath: Path):
@@ -44,7 +55,11 @@ class Pool:
             warn = FileExistsWarning("file exists, added random suffix", filepath=filepath, name=name)
             warnings.add(warn)
         newpath = self.path / name
-        shutil.move(filepath, newpath)
+        match self.action:
+            case PoolAction.MOVE:
+                shutil.move(filepath, newpath)
+            case PoolAction.COPY:
+                shutil.copyfile(filepath, newpath)
 
 class IgnorePool(Pool):
     @classmethod
