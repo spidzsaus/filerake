@@ -9,7 +9,7 @@ import shutil
 from send2trash import send2trash
 from typing import TYPE_CHECKING
 
-from app.utils import filename_format
+from core.utils import filename_format
 
 
 class PileMode(enum.Enum):

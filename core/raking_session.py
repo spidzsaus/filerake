@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app.raking_piles import Pile
+from core.raking_piles import Pile
 
 
 class Session:
