@@ -1,4 +1,5 @@
-from app.raking_piles import Pile
+from core.raking_piles import Pile
+
 
 class Settings:
     piles: list[Pile]
@@ -14,6 +15,7 @@ class Settings:
         self.piles = piles
         self.text_extensions = text_extensions
         self.file_preview_text_line_limit = file_preview_text_line_limit
+
 
 DEFAULT_SETTINGS = Settings(
     piles=[],

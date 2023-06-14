@@ -8,8 +8,12 @@ import datetime
 import shutil
 from send2trash import send2trash
 from typing import TYPE_CHECKING
+from dearpygui.dearpygui import mvKey_I, mvKey_Shift, mvKey_Back
 
 from core.utils import filename_format
+
+
+DPG_KEY_CODE = type(mvKey_Shift)
 
 
 class PileMode(enum.Enum):
@@ -24,7 +28,7 @@ class Pile:
     mode: PileMode
     path: Path | None
     pattern: re.Pattern
-    hotkey: list[str] | None
+    hotkey: list[DPG_KEY_CODE] | None
     file_rename_format: str
     always_rename_files: bool
 
@@ -34,7 +38,7 @@ class Pile:
         mode: PileMode, 
         path: Path | None = None,
         pattern: re.Pattern | None = None,
-        hotkey: list[str] | None = None,
+        hotkey: list[DPG_KEY_CODE] | None = None,
         file_rename_format: str | None = None,
         always_rename_files: bool = False
     ):
@@ -105,3 +109,29 @@ class Pile:
         obj['file_rename_format'] = self.file_rename_format
         obj['always_rename_files'] = self.always_rename_files
         return obj
+
+
+class GeneralPiles:
+    @property
+    def ignore_pile(self):
+        return Pile(
+            name='Ignore',
+            mode=PileMode.IGNORE,
+            path=None,
+            pattern=None,
+            hotkey=[mvKey_Shift, mvKey_I],
+            file_rename_format=None,
+            always_rename_files=False
+        )
+    
+    @property
+    def trash_pile(self):
+        return Pile(
+            name='Send to trash',
+            mode=PileMode.DELETE,
+            path=None,
+            pattern=None,
+            hotkey=[mvKey_Shift, mvKey_Back],
+            file_rename_format=None,
+            always_rename_files=False
+        )
